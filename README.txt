@@ -3,133 +3,133 @@ NETBASTARD - Network Isolation Tool (ARP Spoofing)
 https://github.com/ekospinach/netbastard
 
 
-DESKRIPSI
----------
-Netbastard adalah alat untuk menguji keamanan jaringan dengan teknik ARP
-spoofing. Fungsinya mendeteksi perangkat dalam jaringan lokal dan memutus
-koneksi internet perangkat target dengan mengirim paket ARP palsu yang
-menyamar sebagai gateway.
-
-
-PERSYARATAN
+DESCRIPTION
 -----------
+Netbastard is a network security testing tool that uses ARP spoofing
+techniques. It detects devices on the local network and disrupts internet
+access for a target device by sending forged ARP packets that impersonate
+the gateway.
+
+
+REQUIREMENTS
+------------
 1. Python 3.8+
-2. Npcap or WinPcap (untuk scapy raw socket)
+2. Npcap or WinPcap (required by scapy for raw socket access)
    - Download: https://npcap.com
-   - Wajib diinstal dengan opsi "Install in WinPcap API-compatible Mode"
+   - Must be installed with "Install in WinPcap API-compatible Mode" enabled
 3. Dependencies (pip install -r requirements.txt):
    - scapy >= 2.5.0
    - colorama >= 0.4.6
 
 
-INSTALASI
----------
+INSTALLATION
+------------
   pip install -r requirements.txt
 
 
-HAK AKSES
----------
-ARP spoofing membutuhkan akses Administrator (Windows) atau root (Linux).
+ACCESS PRIVILEGES
+-----------------
+ARP spoofing requires Administrator privileges (Windows) or root (Linux).
 
-CARA PALING MUDAH (double-click, tanpa terminal):
-  1. Buka folder netbastard
-  2. Double-click run.bat   (untuk GUI)
-     Double-click run_cli.bat (untuk CLI)
-  3. Windows UAC muncul -> klik Yes
-  4. Aplikasi langsung jalan sebagai Administrator
+EASIEST WAY (double-click, no terminal needed):
+  1. Open the netbastard folder
+  2. Double-click run.bat        (for GUI)
+     Double-click run_cli.bat    (for CLI)
+  3. Windows UAC prompt appears -> click Yes
+  4. App runs as Administrator
 
-CARA OTOMATIS via terminal:
+AUTO-ELEVATE via terminal:
   1. config.json: "auto_elevate": true
-  2. Jalankan: python netbastard_gui.py
-  3. Windows UAC muncul -> klik Yes
+  2. Run: python netbastard_gui.py
+  3. Windows UAC prompt appears -> click Yes
 
-CARA MANUAL:
-  Windows: Klik kanan -> Run as Administrator
+MANUAL METHOD:
+  Windows: Right-click -> Run as Administrator
   Linux:   sudo python netbastard.py
 
 
-FILE YANG TERSEDIA
-------------------
+FILES INCLUDED
+--------------
   netbastard.py        - CLI version (keyboard-driven menu)
   netbastard_gui.py    - GUI version (Tkinter)
-  run.bat              - Double-click to run GUI sebagai Admin
-  run_cli.bat          - Double-click to run CLI sebagai Admin
-  config.json          - Pengaturan aplikasi
-  requirements.txt     - Daftar dependency
+  run.bat              - Double-click to run GUI as Admin
+  run_cli.bat          - Double-click to run CLI as Admin
+  config.json          - Application settings
+  requirements.txt     - Python dependencies
 
 
-CARPAKAI - CLI (netbastard.py)
--------------------------------
+USAGE - CLI (netbastard.py)
+----------------------------
   python netbastard.py
 
   Menu:
-    1  - Scan Network      : Mendeteksi semua perangkat di jaringan
-    2  - List Devices      : Menampilkan daftar perangkat hasil scan
-    3  - Attack Target     : Memulai serangan ke satu target (masukkan nomor)
-    4  - Stop Attack       : Menghentikan serangan ke satu target
-    5  - Show Status       : Menampilkan status serangan yang aktif
-    6  - Multi Attack      : Serang beberapa target sekaligus (contoh: 1,3,5)
-    7  - Stop All          : Hentikan semua serangan
-    8  - Quit              : Keluar (otomatis restore ARP table)
+    1  - Scan Network      : Discover all devices on the local network
+    2  - List Devices      : Display scanned devices (IP, MAC, hostname)
+    3  - Attack Target     : Start attacking a single target (enter number)
+    4  - Stop Attack       : Stop attacking a specific target
+    5  - Show Status       : Display active attack status and stats
+    6  - Multi Attack      : Attack multiple targets at once (e.g. 1,3,5)
+    7  - Stop All          : Stop all active attacks
+    8  - Quit              : Exit (automatically restores ARP tables)
 
 
-CARAPAKAI - GUI (netbastard_gui.py)
-------------------------------------
+USAGE - GUI (netbastard_gui.py)
+--------------------------------
   python netbastard_gui.py
 
   GUI:
-    [Scan Network]      -> Scan jaringan
-    [Attack Selected]   -> Serang perangkat yang dicentang
-    [Stop Attack]       -> Hentikan serangan ke perangkat yg dicentang
-    [Stop All]          -> Hentikan semua serangan
+    [Scan Network]      -> Scan the local network
+    [Attack Selected]   -> Attack checked devices
+    [Stop Attack]       -> Stop attacking checked devices
+    [Stop All]          -> Stop all attacks
 
-    Cara mencentang: klik kolom paling kiri (kotak centang) pada tabel
-    Jika tidak ada yg dicentang, [Attack Selected] akan menyerang SEMUA
-    perangkat hasil scan.
-
-
-KONFIGURASI (config.json)
---------------------------
-  auto_elevate     : true/false  -> Otomatis minta admin via UAC (default: true)
-  scan_method      : auto        -> Metode scanning (auto/scapy/api)
-  spoof_interval   : 1.0         -> Interval pengiriman paket ARP (detik)
-  theme            : dark        -> Tema GUI (dark/light)
-  scan_range       : "192.168.1.0/24" -> Range jaringan untuk scan
-  refresh_interval : 3           -> Interval refresh status (detik)
+    How to select: click the leftmost column (checkbox) in the device table
+    If no devices are checked, [Attack Selected] will attack ALL discovered
+    devices.
 
 
-CARA KERJA
-----------
-1. Scan:  Mengirim ARP request broadcast ke seluruh IP /24, mencatat
-          perangkat yang merespons beserta alamat MAC dan hostname.
-
-2. Attack: Mengirim ARP reply palsu secara terus-menerus ke:
-   - Target: memberitahu bahwa MAC attacker adalah gateway
-   - Gateway: memberitahu bahwa MAC attacker adalah target
-   Akibatnya, semua lalu lintas target ke gateway (dan sebaliknya) akan
-   melalui attacker, sehingga koneksi internet target terputus.
-
-3. Restore: Setelah serangan dihentikan, ARP table target dan gateway
-            dikembalikan ke kondisi normal (ARP reply benar).
+CONFIGURATION (config.json)
+----------------------------
+  auto_elevate     : true/false  -> Auto-request admin via UAC (default: true)
+  scan_method      : auto        -> Scan method (auto/scapy/api)
+  spoof_interval   : 1.0         -> ARP packet send interval (seconds)
+  theme            : dark        -> GUI theme (dark/light)
+  scan_range       : "192.168.1.0/24" -> Network range to scan
+  refresh_interval : 3           -> Status refresh interval (seconds)
 
 
-CATATAN PENTING
+HOW IT WORKS
+------------
+1. Scan:  Sends broadcast ARP requests to all IPs in the /24 subnet,
+          recording each responding device's IP, MAC address, and hostname.
+
+2. Attack: Continuously sends forged ARP replies to:
+   - The target: telling it the attacker's MAC is the gateway
+   - The gateway: telling it the attacker's MAC is the target
+   As a result, all traffic between the target and the gateway flows through
+   the attacker, cutting off the target's internet access.
+
+3. Restore: When the attack stops, the ARP tables on both the target and
+            gateway are restored to their correct state (genuine ARP replies).
+
+
+IMPORTANT NOTES
 ---------------
-- Hanya untuk pengujian keamanan di jaringan milik sendiri atau yang sudah
-  mendapat izin tertulis. Penggunaan tanpa izin bisa melanggar hukum.
-- ARP spoofing tidak bekerja di jaringan yang menggunakan switch dengan
-  fitur Dynamic ARP Inspection (DAI) atau port security.
-- Beberapa antivirus mendeteksi ARP spoofing sebagai ancaman.
-- Koneksi target akan pulih otomatis beberapa detik setelah serangan
-  dihentikan.
+- For security testing only on networks you own or have explicit written
+  permission to test. Unauthorized use may violate applicable laws.
+- ARP spoofing does not work on networks using switches with Dynamic ARP
+  Inspection (DAI) or port security features.
+- Some antivirus software may detect ARP spoofing as a threat.
+- The target's connection will recover automatically a few seconds after
+  the attack is stopped.
 
 
-STRUKTUR PROYEK
----------------
+PROJECT STRUCTURE
+-----------------
   netbastard/
   ├── netbastard.py        # CLI
   ├── netbastard_gui.py    # GUI
-  ├── run.bat              # Launcher GUI (auto-admin)
-  ├── run_cli.bat          # Launcher CLI (auto-admin)
-  ├── config.json          # Pengaturan
+  ├── run.bat              # GUI launcher (auto-admin)
+  ├── run_cli.bat          # CLI launcher (auto-admin)
+  ├── config.json          # Settings
   └── requirements.txt     # Dependencies
