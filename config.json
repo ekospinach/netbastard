@@ -1,0 +1,9 @@
+{
+  "auto_elevate": true,
+  "scan_method": "auto",
+  "spoof_interval": 1.0,
+  "theme": "dark",
+  "scan_range": "192.168.1.0/24",
+  "refresh_interval": 3,
+  "admin_bypass": false
+}
